@@ -1,26 +1,24 @@
 {
   "format": 1,
   "restore": {
-    "D:\\workspace\\OnlineRelease\\Help\\Help.csproj": {}
+    "D:\\workspace\\online_release\\code\\Help\\Help.csproj": {}
   },
   "projects": {
-    "D:\\workspace\\OnlineRelease\\Help\\Help.csproj": {
+    "D:\\workspace\\online_release\\code\\Help\\Help.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\workspace\\OnlineRelease\\Help\\Help.csproj",
+        "projectUniqueName": "D:\\workspace\\online_release\\code\\Help\\Help.csproj",
         "projectName": "Help",
-        "projectPath": "D:\\workspace\\OnlineRelease\\Help\\Help.csproj",
-        "packagesPath": "C:\\Users\\michael\\.nuget\\packages\\",
-        "outputPath": "D:\\workspace\\OnlineRelease\\Help\\obj\\",
+        "projectPath": "D:\\workspace\\online_release\\code\\Help\\Help.csproj",
+        "packagesPath": "C:\\Users\\何涛\\.nuget\\packages\\",
+        "outputPath": "D:\\workspace\\online_release\\code\\Help\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "D:\\Microsoft\\Xamarin\\NuGet\\",
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
         ],
         "configFilePaths": [
-          "C:\\Users\\michael\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
+          "C:\\Users\\何涛\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "netstandard2.1"
@@ -66,12 +64,18 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "NETStandard.Library.Ref",
+              "version": "[2.1.0, 2.1.0]"
+            }
+          ],
           "frameworkReferences": {
             "NETStandard.Library": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.102\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.101\\RuntimeIdentifierGraph.json"
         }
       }
     }

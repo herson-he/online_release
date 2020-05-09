@@ -9,3 +9,16 @@ D:\workspace\OnlineRelease\OnlineRelease\bin\Debug\netcoreapp3.1\OnlineRelease.d
 D:\workspace\OnlineRelease\OnlineRelease\bin\Debug\netcoreapp3.1\OnlineRelease.pdb
 D:\workspace\OnlineRelease\OnlineRelease\obj\Debug\netcoreapp3.1\OnlineRelease.dll
 D:\workspace\OnlineRelease\OnlineRelease\obj\Debug\netcoreapp3.1\OnlineRelease.pdb
+D:\workspace\online_release\code\OnlineRelease\obj\Debug\netcoreapp3.1\OnlineRelease.csprojAssemblyReference.cache
+D:\workspace\online_release\code\OnlineRelease\obj\Debug\netcoreapp3.1\OnlineRelease.AssemblyInfoInputs.cache
+D:\workspace\online_release\code\OnlineRelease\obj\Debug\netcoreapp3.1\OnlineRelease.AssemblyInfo.cs
+D:\workspace\online_release\code\OnlineRelease\obj\Debug\netcoreapp3.1\OnlineRelease.dll
+D:\workspace\online_release\code\OnlineRelease\obj\Debug\netcoreapp3.1\OnlineRelease.pdb
+D:\workspace\online_release\code\OnlineRelease\bin\Debug\netcoreapp3.1\OnlineRelease.exe
+D:\workspace\online_release\code\OnlineRelease\bin\Debug\netcoreapp3.1\OnlineRelease.deps.json
+D:\workspace\online_release\code\OnlineRelease\bin\Debug\netcoreapp3.1\OnlineRelease.runtimeconfig.json
+D:\workspace\online_release\code\OnlineRelease\bin\Debug\netcoreapp3.1\OnlineRelease.runtimeconfig.dev.json
+D:\workspace\online_release\code\OnlineRelease\bin\Debug\netcoreapp3.1\OnlineRelease.dll
+D:\workspace\online_release\code\OnlineRelease\bin\Debug\netcoreapp3.1\OnlineRelease.pdb
+D:\workspace\online_release\code\OnlineRelease\bin\Debug\netcoreapp3.1\ICSharpCode.SharpZipLib.dll
+D:\workspace\online_release\code\OnlineRelease\obj\Debug\netcoreapp3.1\OnlineRelease.csproj.CopyComplete
