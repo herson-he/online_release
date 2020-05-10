@@ -1,8 +1,0 @@
-D:\7001\网约课程\Sport\Help\bin\Release\netstandard2.1\Help.deps.json
-D:\7001\网约课程\Sport\Help\bin\Release\netstandard2.1\Help.dll
-D:\7001\网约课程\Sport\Help\bin\Release\netstandard2.1\Help.pdb
-D:\7001\网约课程\Sport\Help\obj\Release\netstandard2.1\Help.csprojAssemblyReference.cache
-D:\7001\网约课程\Sport\Help\obj\Release\netstandard2.1\Help.AssemblyInfoInputs.cache
-D:\7001\网约课程\Sport\Help\obj\Release\netstandard2.1\Help.AssemblyInfo.cs
-D:\7001\网约课程\Sport\Help\obj\Release\netstandard2.1\Help.dll
-D:\7001\网约课程\Sport\Help\obj\Release\netstandard2.1\Help.pdb
