@@ -1,4 +1,5 @@
-﻿using OnlineRelease.BaseClass;
+﻿using Newtonsoft.Json;
+using OnlineRelease.BaseClass;
 using OnlineRelease.Model;
 using System;
 using System.Collections.Generic;
@@ -15,22 +16,20 @@ namespace OnlineRelease
         {
             Console.Title = "WEB发布工具";
 
-            List<Project> listProject = new List<Project>();
-            listProject.Add(new Project
+            string configPath = System.Environment.CurrentDirectory + @"\config.json";
+            Config config = null;
+            if (!File.Exists(configPath))
             {
-                ProjectName = "支付中心",
-                ProjectPath = @"D:\7001\充值中心\网站程序\网站程序\WHPay.Pay",
-                ReleasePath = @"D:\7001\充值中心\网站发布\支付中心",
-                CMD = "yarn build"
-            });
-
-            listProject.Add(new Project
+                Console.WriteLine("缺少配置文件config.json");
+                goto lbWhile;
+            }
+            string strConfig = File.ReadAllText(configPath);
+            config = JsonConvert.DeserializeObject<Config>(strConfig);
+            if (config == null)
             {
-                ProjectName = "管理系统",
-                ProjectPath = @"D:\7001\充值中心\网站程序\网站程序\WHPay.Web",
-                ReleasePath = @"D:\7001\充值中心\网站发布\管理系统",
-                CMD = "yarn build"
-            });
+                Console.WriteLine("缺少配置");
+                goto lbWhile;
+            }
 
             Console.WriteLine("欢迎使用WEB程序发布工具，致力于一键发布WEB程序");
             Console.WriteLine("----------------------------------------------------");
@@ -39,27 +38,38 @@ namespace OnlineRelease
             Console.WriteLine("退出: exit");
             Console.WriteLine("----------------------------------------------------");
 
+        lbWhile:
             while (true)
             {
                 string cmd = Console.ReadLine().ToLower();
                 if (cmd == "run cmd")
                 {
-                    BatchFrontFile(listProject);
+                    BatchFrontFile(config.Projects);
                 }
                 else if (cmd == "batch")
                 {
-                    string outDir = $@"D:\7001\充值中心\更新记录\{DateTime.Now.ToString("yyyyMMddHHmmss")}";
-                    foreach (var item in listProject)
+                    string currentOutDir = config.OutDir + $@"\{DateTime.Now.ToString("yyyyMMdd")}";
+                    int i = 1;
+                    while (Directory.Exists(currentOutDir))
+                    {
+                        if (i > 1)
+                        {
+                            currentOutDir = currentOutDir.Substring(0, currentOutDir.LastIndexOf('-'));
+                        }
+                        currentOutDir += "-" + i;
+                        i++;
+                    }
+                    foreach (var item in config.Projects)
                     {
                         FileManage fileManage = new FileManage(item);
-                        string projectOutDir = outDir + $@"\{item.ProjectName}";
+                        fileManage.IgnoreDir = config.IgnoreDir;
+                        fileManage.IgnoreFileName = config.IgnoreFileName;
+                        fileManage.IgnoreFileSuffix = config.IgnoreFileSuffix;
+                        string projectOutDir = currentOutDir + $@"\{item.ProjectName}";
                         fileManage.OutUpdateFile(item.ReleasePath, projectOutDir);
                         fileManage.SaveVersionFile(projectOutDir);
                     }
-                }
-                else if (cmd == "create version")
-                {
-                    GenerateVersionFile(listProject);
+                    Console.WriteLine("打包完毕");
                 }
                 else if (cmd == "help")
                 {
@@ -76,22 +86,6 @@ namespace OnlineRelease
                     Console.WriteLine($"'{cmd}'无效命名 输入help查看命令");
                 }
             }
-        }
-
-        /// <summary>
-        /// 创建版本文件
-        /// </summary>
-        /// <param name="listProject"></param>
-        public static void GenerateVersionFile(List<Project> listProject)
-        {
-            foreach (var item in listProject)
-            {
-                var fileOperations = new FileOperation();
-                string version = fileOperations.GenerateVersionStr(item.ReleasePath);
-                string saveDir = $@"D:\7001\充值中心\历史版本\{item.ProjectName}.version";
-                System.IO.File.WriteAllText(saveDir, version);
-            }
-            Console.WriteLine("创建版本文件成功");
         }
 
         /// <summary>
@@ -156,39 +150,6 @@ namespace OnlineRelease
             //等待程序执行完退出进程
             process.WaitForExit();
             process.Close();
-        }
-
-        /// <summary>
-        /// 输出需要更新的文件
-        /// </summary>
-        /// <param name="listProject"></param>
-        public static void OutUpdateFile(List<Project> listProject)
-        {
-            string versionDir = @"D:\7001\充值中心\历史版本";
-            FileOperation fileOperation = new FileOperation();
-            string outDir = $@"D:\7001\充值中心\更新记录\{DateTime.Now.ToString("yyyyMMddHHmmss")}";
-            foreach (var item in listProject)
-            {
-                List<FileVersion> listFileVersion = new List<FileVersion>();
-                string versionContent = System.IO.File.ReadAllText(versionDir + "\\" + item.ProjectName + ".version");
-                string[] arrVersion = versionContent.Split("\r\n");
-                foreach (var item2 in arrVersion)
-                {
-                    if (!string.IsNullOrEmpty(item2))
-                    {
-                        string[] arrItem = item2.Split("=");
-                        listFileVersion.Add(new FileVersion { FilePath = arrItem[0], HashValue = arrItem[1] });
-                    }
-                }
-                string projectOutDir = outDir + $@"\{item.ProjectName}";
-                fileOperation.OutNeedUpdateFile(listFileVersion, item.ReleasePath, projectOutDir);
-                //foreach (var item2 in listFileVersion)
-                //{
-                //    item2.FilePath = item2.FilePath.Replace(item.ReleasePath, "");
-                //}
-                //fileOperation.SaveVersionFile(listFileVersion, projectOutDir);
-            }
-            Console.WriteLine("输出需要更新的文件成功");
         }
     }
 }

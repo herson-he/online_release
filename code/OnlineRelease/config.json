@@ -1,0 +1,20 @@
+{
+  "Projects": [
+    {
+      "ProjectName": "支付中心",
+      "ProjectPath": "D:\\公司项目\\支付系统\\网站程序\\WHPay.Pay",
+      "ReleasePath": "D:\\7001\\充值中心\\网站发布\\支付中心",
+      "CMD": "yarn build"
+    },
+    {
+      "ProjectName": "管理系统",
+      "ProjectPath": "D:\\公司项目\\支付系统\\网站程序\\WHPay.Web",
+      "ReleasePath": "D:\\7001\\充值中心\\网站发布\\管理系统",
+      "CMD": "yarn build"
+    }
+  ],
+  "OutDir": "D:\\7001\\充值中心\\更新记录",
+  "IgnoreDir": [ "\\areas\\helppage", "\\scripts", "\\content" ],
+  "IgnoreFileName": [ "version.version", "web.config" ],
+  "IgnoreFileSuffix": [ ".pdb", ".xml" ]
+}

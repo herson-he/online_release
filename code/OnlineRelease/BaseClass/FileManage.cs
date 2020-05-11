@@ -9,25 +9,18 @@ namespace OnlineRelease.BaseClass
 {
     public class FileManage
     {
-        public string[] _ignoreDir = new string[] { @"\Areas\HelpPage" };
+        public string[] _ignoreDir = new string[] { @"\areas\helppage", @"\scripts", @"\content" };
 
         public string[] _ignoreFileSuffix = new string[] { ".pdb", ".xml" };
 
-        public string[] _ignoreFileName = new string[] { "version.version" };
+        public string[] _ignoreFileName = new string[] { "version.version", "web.config" };
 
         /// <summary>
         /// 忽略目录
         /// </summary>
         public string[] IgnoreDir
         {
-            get
-            {
-                return _ignoreDir;
-            }
-            set
-            {
-                _ignoreDir = value;
-            }
+            get; set;
         }
 
         /// <summary>
@@ -35,14 +28,7 @@ namespace OnlineRelease.BaseClass
         /// </summary>
         public string[] IgnoreFileSuffix
         {
-            get
-            {
-                return _ignoreFileName;
-            }
-            set
-            {
-                _ignoreFileName = value;
-            }
+            get; set;
         }
 
         /// <summary>
@@ -50,14 +36,7 @@ namespace OnlineRelease.BaseClass
         /// </summary>
         public string[] IgnoreFileName
         {
-            get
-            {
-                return _ignoreFileName;
-            }
-            set
-            {
-                _ignoreFileName = value;
-            }
+            get; set;
         }
 
         /// <summary>
@@ -116,15 +95,26 @@ namespace OnlineRelease.BaseClass
             foreach (var item in file)
             {
                 FileInfo fileInfo = new FileInfo(item);
-                if (IgnoreFileName.Contains(fileInfo.Name) || IgnoreFileSuffix.Contains(fileInfo.Extension))
+                if (IgnoreFileName.Contains(fileInfo.Name.ToLower()) || IgnoreFileSuffix.Contains(fileInfo.Extension.ToLower()))
                 {
                     continue;
                 }
                 string relativePath = item.Replace(ProjectInfo.ReleasePath, "");
-                if (IgnoreDir.Contains(relativePath))
+
+                bool isJump = false;
+                foreach (var item2 in IgnoreDir)
+                {
+                    if (relativePath.ToLower().StartsWith(item2.ToLower()))
+                    {
+                        isJump = true;
+                        continue;
+                    }
+                }
+                if (isJump)
                 {
                     continue;
                 }
+
                 string outFilePath = outDir + item.Replace(fileDir, "");
                 string hashValue = GetMD5HashFromFile(item);
 
@@ -198,7 +188,7 @@ namespace OnlineRelease.BaseClass
             {
                 fileContent += $"{item.FilePath}={item.HashValue}\r\n";
             }
-            File.WriteAllText(dir+@"\version.version", fileContent);
+            File.WriteAllText(dir + @"\version.version", fileContent);
         }
     }
 }
