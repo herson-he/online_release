@@ -118,8 +118,7 @@ namespace OnlineRelease
                     else
                     {
                         PrintPrompt("开始通过FTP上传文件，请稍后....");
-                        DateTime statDT = DateTime.Now;
-
+                        DateTime statDT = DateTime.Now; 
                         foreach (var item in config.Projects)
                         {
                             FtpConfig ftpConfig = config.PublicFtpConfig;

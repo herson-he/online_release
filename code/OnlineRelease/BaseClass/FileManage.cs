@@ -55,10 +55,10 @@ namespace OnlineRelease.BaseClass
         /// 构造函数
         /// </summary>
         /// <param name="project"></param>
-        public FileManage(Project project)
+        public FileManage(Project project,string versionFileStore)
         {
             ProjectInfo = project;
-            ListFileVersion = GetFileVersionList();
+            ListFileVersion = GetFileVersionList(versionFileStore);
         }
 
         /// <summary>
@@ -154,26 +154,33 @@ namespace OnlineRelease.BaseClass
         /// 获取文件版本列表
         /// </summary>
         /// <returns></returns>
-        public List<FileVersion> GetFileVersionList()
+        public List<FileVersion> GetFileVersionList(string type)
         {
-            string versionPath = ProjectInfo.ProjectPath + @"\version.version";
             List<FileVersion> listFileVersion = new List<FileVersion>();
-            if (File.Exists(versionPath))
+            if (type == "native")
             {
-                string versionContent = System.IO.File.ReadAllText(versionPath);
-                string[] arrVersion = versionContent.Split("\r\n");
-                foreach (var item2 in arrVersion)
+                string versionPath = ProjectInfo.ProjectPath + @"\version.version";
+                if (File.Exists(versionPath))
                 {
-                    if (!string.IsNullOrEmpty(item2))
+                    string versionContent = System.IO.File.ReadAllText(versionPath);
+                    string[] arrVersion = versionContent.Split("\r\n");
+                    foreach (var item2 in arrVersion)
                     {
-                        if (listFileVersion == null)
+                        if (!string.IsNullOrEmpty(item2))
                         {
-                            listFileVersion = new List<FileVersion>();
+                            if (listFileVersion == null)
+                            {
+                                listFileVersion = new List<FileVersion>();
+                            }
+                            string[] arrItem = item2.Split("=");
+                            listFileVersion.Add(new FileVersion { FilePath = arrItem[0], HashValue = arrItem[1] });
                         }
-                        string[] arrItem = item2.Split("=");
-                        listFileVersion.Add(new FileVersion { FilePath = arrItem[0], HashValue = arrItem[1] });
                     }
                 }
+            }
+            else
+            {
+
             }
             return listFileVersion;
         }
