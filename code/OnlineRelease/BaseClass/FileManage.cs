@@ -1,9 +1,11 @@
-﻿using OnlineRelease.Model;
+﻿using FluentFTP;
+using OnlineRelease.Model;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace OnlineRelease.BaseClass
 {
@@ -189,6 +191,55 @@ namespace OnlineRelease.BaseClass
                 fileContent += $"{item.FilePath}={item.HashValue}\r\n";
             }
             File.WriteAllText(dir + @"\version.version", fileContent);
+        }
+
+        /// <summary>
+        /// 上传文件至Ftp
+        /// </summary>
+        public static async Task UploadToFtp(FtpClient ftp, string fileDir, string romoteDir, string prefixDir, Progress<FtpProgress> progress)
+        {
+            string[] file = Directory.GetFiles(fileDir);
+            foreach (var item in file)
+            {
+                await ftp.UploadFileAsync(item, romoteDir + "/" + Path.GetFileName(item), FtpRemoteExists.Overwrite, false, FtpVerify.None, progress);
+            }
+            string[] dir = Directory.GetDirectories(fileDir);
+            for (int i = 0; i < dir.Length; i++)
+            {
+                await UploadToFtp(ftp, dir[i], romoteDir + ConvertToFtpDir(dir[i], prefixDir), prefixDir, progress);
+            }
+        }
+
+        /// <summary>
+        /// 获取目录下所有文件
+        /// </summary>
+        /// <param name="fileDir"></param>
+        /// <returns></returns>
+        public static List<string> GetAllFile(string fileDir)
+        {
+            string[] file = Directory.GetFiles(fileDir);
+            List<string> list = new List<string>();
+            foreach (var item in file)
+            {
+                list.Add(item);
+            }
+            string[] dir = Directory.GetDirectories(fileDir);
+            foreach (var item in dir)
+            {
+                list.AddRange(GetAllFile(item));
+            }
+            return list;
+        }
+
+        /// <summary>
+        /// 将本地目录转化为Ftp相对目录
+        /// </summary>
+        /// <param name="fileDir"></param>
+        /// <param name="prefixDir"></param>
+        /// <returns></returns>
+        public static string ConvertToFtpDir(string fileDir, string prefixDir)
+        {
+            return fileDir.Replace(prefixDir, "").Replace(@"\", "/");
         }
     }
 }

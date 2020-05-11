@@ -30,5 +30,10 @@ namespace OnlineRelease.Model
         /// 忽略后缀
         /// </summary>
         public string[] IgnoreFileSuffix { get; set; }
+
+        /// <summary>
+        /// Ftp配置
+        /// </summary>
+        public FtpConfig PublicFtpConfig { get; set; }
     }
 }

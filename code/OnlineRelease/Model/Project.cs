@@ -25,5 +25,15 @@ namespace OnlineRelease.Model
         /// 执行的CMD
         /// </summary>
         public string CMD { get; set; }
+
+        /// <summary>
+        /// Ftp目录
+        /// </summary>
+        public string FtpDir { get; set; }
+
+        /// <summary>
+        /// 项目Ftp配置，如若为空，则使用PublicFtpConfig
+        /// </summary>
+        public FtpConfig ProjectFtpConfig { get; set; }
     }
 }
