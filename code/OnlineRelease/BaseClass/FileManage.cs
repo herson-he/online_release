@@ -55,7 +55,7 @@ namespace OnlineRelease.BaseClass
         /// 构造函数
         /// </summary>
         /// <param name="project"></param>
-        public FileManage(Project project,string versionFileStore)
+        public FileManage(Project project, string versionFileStore)
         {
             ProjectInfo = project;
             ListFileVersion = GetFileVersionList(versionFileStore);
@@ -180,7 +180,40 @@ namespace OnlineRelease.BaseClass
             }
             else
             {
+                using (var ftp = new FtpClient(ProjectInfo.ProjectFtpConfig.Host, ProjectInfo.ProjectFtpConfig.Port, ProjectInfo.ProjectFtpConfig.User, ProjectInfo.ProjectFtpConfig.Pass))
+                {
+                    ftp.Connect();
+                    try
+                    {
+                        using (var istream = ftp.OpenRead(ProjectInfo.FtpDir + "/version.version"))
+                        {
 
+                            StreamReader reader = new StreamReader(istream);
+                            string versionContent = reader.ReadToEnd();
+                            string[] arrVersion = versionContent.Split("\r\n");
+                            foreach (var item2 in arrVersion)
+                            {
+                                if (!string.IsNullOrEmpty(item2))
+                                {
+                                    if (listFileVersion == null)
+                                    {
+                                        listFileVersion = new List<FileVersion>();
+                                    }
+                                    string[] arrItem = item2.Split("=");
+                                    listFileVersion.Add(new FileVersion { FilePath = arrItem[0], HashValue = arrItem[1] });
+                                }
+                            }
+                        }
+                    }
+                    catch
+                    {
+
+                    }
+                    finally
+                    {
+
+                    }
+                }
             }
             return listFileVersion;
         }
@@ -197,23 +230,27 @@ namespace OnlineRelease.BaseClass
             {
                 fileContent += $"{item.FilePath}={item.HashValue}\r\n";
             }
-            File.WriteAllText(dir + @"\version.version", fileContent);
+            if (Directory.Exists(dir))
+            {
+                File.WriteAllText(dir + @"\version.version", fileContent);
+            }
         }
 
         /// <summary>
         /// 上传文件至Ftp
         /// </summary>
-        public static async Task UploadToFtp(FtpClient ftp, string fileDir, string romoteDir, string prefixDir, Progress<FtpProgress> progress)
+        public static void UploadToFtp(FtpClient ftp, string fileDir, string romoteDir, string prefixDir, Action<FtpProgress> progress, DirUploadState dirUploadState)
         {
             string[] file = Directory.GetFiles(fileDir);
             foreach (var item in file)
             {
-                await ftp.UploadFileAsync(item, romoteDir + "/" + Path.GetFileName(item), FtpRemoteExists.Overwrite, false, FtpVerify.None, progress);
+                ftp.UploadFile(item, romoteDir + "/" + ConvertToFtpDir(fileDir, prefixDir) + "/" + Path.GetFileName(item), FtpRemoteExists.Overwrite, true, FtpVerify.None, progress);
+                dirUploadState.FileIndex++;
             }
             string[] dir = Directory.GetDirectories(fileDir);
             for (int i = 0; i < dir.Length; i++)
             {
-                await UploadToFtp(ftp, dir[i], romoteDir + ConvertToFtpDir(dir[i], prefixDir), prefixDir, progress);
+                UploadToFtp(ftp, dir[i], romoteDir, prefixDir, progress, dirUploadState);
             }
         }
 
@@ -224,8 +261,8 @@ namespace OnlineRelease.BaseClass
         /// <returns></returns>
         public static List<string> GetAllFile(string fileDir)
         {
-            string[] file = Directory.GetFiles(fileDir);
             List<string> list = new List<string>();
+            string[] file = Directory.GetFiles(fileDir);
             foreach (var item in file)
             {
                 list.Add(item);

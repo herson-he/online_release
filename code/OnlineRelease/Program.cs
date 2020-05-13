@@ -45,13 +45,8 @@ namespace OnlineRelease
             while (true)
             {
                 string cmd = Console.ReadLine().ToLower();
-                if (cmd == "run cmd")
+                if (cmd == "batch")
                 {
-                    BatchFrontFile(config.Projects);
-                }
-                else if (cmd == "batch")
-                {
-                    //BatchFrontFile(config.Projects);
                     Console.WriteLine("请输入您版本文件存放地，值为native或remote，native为项目目录下，remote将通过Ftp远程获取");
                     string versionFileStore = "";
                     while (true)
@@ -76,6 +71,13 @@ namespace OnlineRelease
                         Console.WriteLine("输出类型不合法，请输入zip或者ftp");
                     }
 
+                    Console.WriteLine("您需要执行配置的CMD命令吗？yes or no");
+                    string isRunCmd = Console.ReadLine().ToLower();
+                    if (isRunCmd == "yes")
+                    {
+                        BatchFrontFile(config.Projects);
+                    }
+
                     PrintPrompt("开始文件版本比对，请稍后....");
                     string currentOutDir = config.OutDir + $@"\{DateTime.Now.ToString("yyyyMMdd")}";
                     int i = 1;
@@ -90,7 +92,11 @@ namespace OnlineRelease
                     }
                     foreach (var item in config.Projects)
                     {
-                        FileManage fileManage = new FileManage(item);
+                        if (item.ProjectFtpConfig == null)
+                        {
+                            item.ProjectFtpConfig = config.PublicFtpConfig;
+                        }
+                        FileManage fileManage = new FileManage(item, versionFileStore);
                         fileManage.IgnoreDir = config.IgnoreDir;
                         fileManage.IgnoreFileName = config.IgnoreFileName;
                         fileManage.IgnoreFileSuffix = config.IgnoreFileSuffix;
@@ -100,7 +106,7 @@ namespace OnlineRelease
                     }
                     PrintPrompt("文件版本比对完毕");
 
-                    if (outType == "zip")
+                    if (outType == "zip" && Directory.Exists(currentOutDir))
                     {
                         PrintPrompt("开始压缩文件，请稍后....");
                         string zipName = string.Empty;
@@ -118,19 +124,27 @@ namespace OnlineRelease
                     else
                     {
                         PrintPrompt("开始通过FTP上传文件，请稍后....");
-                        DateTime statDT = DateTime.Now; 
+                        DateTime statDT = DateTime.Now;
                         foreach (var item in config.Projects)
                         {
+                            string projectOutDir = currentOutDir + $@"\{item.ProjectName}";
+                            if (!Directory.Exists(projectOutDir))
+                            {
+                                continue;
+                            }
+                            List<string> allFile = FileManage.GetAllFile(projectOutDir);
                             FtpConfig ftpConfig = config.PublicFtpConfig;
                             if (item.ProjectFtpConfig != null)
                             {
                                 ftpConfig = item.ProjectFtpConfig;
                             }
-                            var token = new CancellationToken();
+                            DirUploadState dirUploadState = new DirUploadState();
+                            dirUploadState.FileCount = allFile.Count();
+                            dirUploadState.FileIndex = 1;
                             using (var ftp = new FtpClient(ftpConfig.Host, ftpConfig.Port, ftpConfig.User, ftpConfig.Pass))
                             {
-                                await ftp.ConnectAsync(token);
-                                Progress<FtpProgress> progress = new Progress<FtpProgress>(p =>
+                                ftp.Connect();
+                                Action<FtpProgress> progress = delegate (FtpProgress p)
                                 {
                                     if (p.Progress == 1)
                                     {
@@ -138,16 +152,15 @@ namespace OnlineRelease
                                     }
                                     else
                                     {
-                                        Console.WriteLine($"正在上传项目{item.ProjectName},总共{p.FileCount}个文件，正在上传第{p.FileIndex + 1}个文件， {p.LocalPath}:{ (p.Progress).ToString("#0") }%");
+                                        Console.WriteLine($"正在更新项目“{item.ProjectName}”,总共{dirUploadState.FileCount}个文件，正在上传第{dirUploadState.FileIndex + 1}个文件， {p.LocalPath}:{ (p.Progress).ToString("#0") }%");
                                     }
-                                });
-                                string projectOutDir = currentOutDir + $@"\{item.ProjectName}";
-                                List<string> allFile = FileManage.GetAllFile(projectOutDir);
-                                await ftp.UploadFilesAsync(allFile, item.FtpDir, FtpRemoteExists.Overwrite, true, FtpVerify.None, FtpError.None, token, progress);
+                                };
+                                FileManage.UploadToFtp(ftp, projectOutDir, item.FtpDir, projectOutDir, progress, dirUploadState);
                             }
                         }
                         PrintPrompt($"上传文件完成，FTP耗时{ (int)((DateTime.Now - statDT).TotalSeconds)}秒");
                     }
+                    PrintPrompt("batch 执行完毕");
                 }
                 else if (cmd == "help")
                 {
@@ -190,20 +203,20 @@ namespace OnlineRelease
                 }
                 Task.WaitAll(tasklst.ToArray());
                 Console.WriteLine("CMD命令执行完毕");
-            }
 
-            Console.WriteLine("开始Copy文件，请稍后...");
-            var tasklst2 = new List<Task>();
-            foreach (var item in listProject)
-            {
-                if (System.IO.Directory.Exists(item.ReleasePath + @"\Assets\dist"))
+                Console.WriteLine("开始Copy文件，请稍后...");
+                var tasklst2 = new List<Task>();
+                foreach (var item in listProject)
                 {
-                    System.IO.Directory.Delete(item.ReleasePath + @"\Assets\dist", true);
+                    if (System.IO.Directory.Exists(item.ReleasePath + @"\Assets\dist"))
+                    {
+                        System.IO.Directory.Delete(item.ReleasePath + @"\Assets\dist", true);
+                    }
+                    FileOperation.CopyFile(item.ProjectPath + @"\Assets\dist", item.ReleasePath + @"\Assets\dist");
                 }
-                FileOperation.CopyFile(item.ProjectPath + @"\Assets\dist", item.ReleasePath + @"\Assets\dist");
+                Task.WaitAll(tasklst2.ToArray());
+                Console.WriteLine("Copy文件完毕");
             }
-            Task.WaitAll(tasklst2.ToArray());
-            Console.WriteLine("Copy文件完毕");
         }
 
         /// <summary>
@@ -237,6 +250,8 @@ namespace OnlineRelease
             //等待程序执行完退出进程
             process.WaitForExit();
             process.Close();
+
+            Console.WriteLine($"{path} 的 {cmd} 命令执行完毕");
         }
     }
 }
