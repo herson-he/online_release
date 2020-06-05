@@ -208,11 +208,14 @@ namespace OnlineRelease
                 var tasklst2 = new List<Task>();
                 foreach (var item in listProject)
                 {
-                    if (System.IO.Directory.Exists(item.ReleasePath + @"\Assets\dist"))
+                    if (System.IO.Directory.Exists(item.ReleasePath + @"\Assets\public"))
                     {
-                        System.IO.Directory.Delete(item.ReleasePath + @"\Assets\dist", true);
+                        System.IO.Directory.Delete(item.ReleasePath + @"\Assets\public", true);
                     }
-                    FileOperation.CopyFile(item.ProjectPath + @"\Assets\dist", item.ReleasePath + @"\Assets\dist");
+                    if (System.IO.Directory.Exists(item.ProjectPath + @"\Assets\public"))
+                    {
+                        FileOperation.CopyFile(item.ProjectPath + @"\Assets\public", item.ReleasePath + @"\Assets\public");
+                    }
                 }
                 Task.WaitAll(tasklst2.ToArray());
                 Console.WriteLine("Copy文件完毕");
